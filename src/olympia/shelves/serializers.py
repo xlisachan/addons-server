@@ -7,6 +7,7 @@ from django.conf import settings
 
 from olympia.addons.serializers import ESAddonSerializer
 from olympia.addons.views import AddonSearchView
+from olympia.bandwagon.views import CollectionAddonViewSet
 
 from .models import Shelf
 
@@ -49,6 +50,13 @@ class ShelfSerializer(serializers.ModelSerializer):
             addons = AddonSearchView(request=request).data
             request.GET = tmp
             return addons
+        elif obj.endpoint == 'collections':
+            request = self.context.get('request', None)
+            kwargs = {
+                'user_pk': str(settings.TASK_USER_ID),
+                'collection_slug': obj.criteria}
+            return CollectionAddonViewSet(request=request, action='list',
+                                          kwargs=kwargs).data
         else:
             return None
 
